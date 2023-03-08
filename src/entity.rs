@@ -296,18 +296,36 @@ impl World {
         }
     }
 
+    pub fn text(&mut self, text: String, x: usize, y: usize) {
+        for (i, ch) in text.bytes().enumerate() {
+            self.background[y * SCREEN_WIDTH + x + i] = Sprite::new(ch);
+        }
+    }
+
     pub fn update(&mut self, key: Keycode) {
         match key {
-            Keycode::Up => {
+            Keycode::Up
+            | Keycode::W
+            | Keycode::K
+            if self.player.y > 0 => {
                 self.player.y -= 1;
             }
-            Keycode::Down => {
+            Keycode::Down
+            | Keycode::S
+            | Keycode::J
+            if self.player.y < SCREEN_HEIGHT - 1 => {
                 self.player.y += 1;
             }
-            Keycode::Left => {
+            Keycode::Left
+            | Keycode::A
+            | Keycode::H
+            if self.player.x > 0 => {
                 self.player.x -= 1;
             }
-            Keycode::Right => {
+            Keycode::Right
+            | Keycode::D
+            | Keycode::L
+            if self.player.x < SCREEN_WIDTH - 1 => {
                 self.player.x += 1;
             }
             _ => {}
