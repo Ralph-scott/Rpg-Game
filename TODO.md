@@ -3,9 +3,9 @@
 - Fix cpu usage
 
 ## WORKING ON
+- Start menu
 
 ## TODO
-- Start menu
 - Loading from custom file format
 - Collision tiles
 - Different rooms

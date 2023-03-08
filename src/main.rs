@@ -17,26 +17,22 @@ fn run() -> SdlResult {
         .position_centered()
         .build()?;
 
-    let mut canvas = window.into_canvas().present_vsync().build()?;
+    let canvas = window.into_canvas().present_vsync().build()?;
 
     let texture_creator = canvas.texture_creator();
 
     let tilemap = texture_creator.load_texture(Path::new("assets/sprites.png"))?;
 
+    let mut screen = Screen::new(canvas);
+
     let mut event_pump = sdl.event_pump()?;
 
     let mut world = World::new();
-    world.text(
-        "The quick brown fox jumped over the lazy dog".to_owned(),
-        0,
-        1,
-    );
 
     let mut now = std::time::Instant::now();
 
     'running: loop {
-        world.draw(&mut canvas, &tilemap)?;
-        canvas.present();
+        world.draw(&mut screen, &tilemap)?;
 
         for evt in event_pump.poll_iter() {
             match evt {
