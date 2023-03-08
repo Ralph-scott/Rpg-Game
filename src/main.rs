@@ -26,6 +26,7 @@ fn run() -> SdlResult {
     let mut event_pump = sdl.event_pump()?;
 
     let mut world = World::new();
+    world.text("The quick brown fox jumped over the lazy dog".to_owned(), 0, 1);
 
     let mut now = std::time::Instant::now();
 
@@ -42,7 +43,7 @@ fn run() -> SdlResult {
                 } => break 'running,
                 Event::KeyDown {
                     keycode: Some(key),
-                    //repeat: false,
+                    repeat: false,
                     ..
                 } => {
                     world.update(key);
