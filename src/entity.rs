@@ -47,28 +47,16 @@ impl World {
 
     pub fn update(&mut self, key: Keycode) {
         match key {
-            Keycode::Up
-            | Keycode::W
-            | Keycode::K
-            if self.player.y > 0 => {
+            Keycode::Up | Keycode::W | Keycode::K if self.player.y > 0 => {
                 self.player.y -= 1;
             }
-            Keycode::Down
-            | Keycode::S
-            | Keycode::J
-            if self.player.y < SCREEN_HEIGHT - 1 => {
+            Keycode::Down | Keycode::S | Keycode::J if self.player.y < SCREEN_HEIGHT - 1 => {
                 self.player.y += 1;
             }
-            Keycode::Left
-            | Keycode::A
-            | Keycode::H
-            if self.player.x > 0 => {
+            Keycode::Left | Keycode::A | Keycode::H if self.player.x > 0 => {
                 self.player.x -= 1;
             }
-            Keycode::Right
-            | Keycode::D
-            | Keycode::L
-            if self.player.x < SCREEN_WIDTH - 1 => {
+            Keycode::Right | Keycode::D | Keycode::L if self.player.x < SCREEN_WIDTH - 1 => {
                 self.player.x += 1;
             }
             _ => {}
