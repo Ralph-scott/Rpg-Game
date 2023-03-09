@@ -1,67 +1,81 @@
 use crate::*;
 use sdl2::rect::Rect;
 use sdl2::render::Canvas;
+use sdl2::render::TextureCreator;
 use sdl2::render::Texture;
 use sdl2::video::Window;
+use sdl2::video::WindowContext;
+use sdl2::image::LoadTexture;
+use std::path::Path;
+
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-pub struct Sprite {
+pub struct Glyph {
     x: usize,
     y: usize,
 }
 
-impl Sprite {
-    pub fn new(ch: u8) -> Self {
+impl Glyph {
+    pub const SIZE: usize = 20;
+    pub const IMAGE_WIDTH: usize = 16;
+
+    pub const SMILEY: Self = Self::new(1);
+
+    pub const fn new(ch: u8) -> Self {
         Self {
-            x: ch as usize % CP437_WIDTH,
-            y: ch as usize / CP437_WIDTH,
+            x: ch as usize % Self::IMAGE_WIDTH,
+            y: ch as usize / Self::IMAGE_WIDTH,
         }
     }
 }
 
-pub struct Screen {
+pub struct Screen<'a> {
+    font: Texture<'a>,
     canvas: Canvas<Window>,
-    pub screen: Vec<Sprite>,
+    pub screen: Vec<Glyph>,
 }
 
-impl Screen {
-    pub fn new(canvas: Canvas<Window>) -> Self {
-        Self {
-            canvas,
-            screen: vec![Sprite::new(0); SCREEN_WIDTH * SCREEN_HEIGHT],
-        }
+impl<'a> Screen<'a> {
+    pub const WIDTH: usize = 20;
+    pub const HEIGHT: usize = 20;
+
+    pub fn new(texture_creator: &'a TextureCreator<WindowContext>, canvas: Canvas<Window>) -> SdlResult<Self> {
+        let font   = texture_creator.load_texture(Path::new("assets/sprites.png"))?;
+        let screen = vec![Glyph::new(0); Self::WIDTH * Self::HEIGHT];
+
+        Ok(Self { font, canvas, screen })
     }
 
     pub fn clear(&mut self) {
-        self.screen.fill(Sprite::new(0));
+        self.screen.fill(Glyph::new(0));
     }
 
-    pub fn set(&mut self, x: usize, y: usize, ch: u8) {
-        self.screen[y * SCREEN_WIDTH + x] = Sprite::new(ch);
+    pub fn set(&mut self, x: usize, y: usize, glyph: Glyph) {
+        self.screen[y * Self::WIDTH + x] = glyph;
     }
 
     pub fn draw_text(&mut self, text: String, x: usize, y: usize) {
         for (i, ch) in text.bytes().enumerate() {
-            self.screen[y * SCREEN_WIDTH + x + i] = Sprite::new(ch);
+            self.screen[y * Self::WIDTH + x + i] = Glyph::new(ch);
         }
     }
 
-    pub fn draw(&mut self, tilemap: &Texture<'_>) -> SdlResult {
+    pub fn draw(&mut self) -> SdlResult<()> {
         self.canvas.clear();
-        for (i, sprite) in self.screen.iter().enumerate() {
+        for (i, glyph) in self.screen.iter().enumerate() {
             self.canvas.copy(
-                tilemap,
+                &self.font,
                 Some(Rect::new(
-                    (sprite.x * 10) as i32,
-                    (sprite.y * 10) as i32,
+                    (glyph.x * 10) as i32,
+                    (glyph.y * 10) as i32,
                     10,
                     10,
                 )),
                 Some(Rect::new(
-                    (i % SCREEN_WIDTH * TILE_SIZE) as i32,
-                    (i / SCREEN_WIDTH * TILE_SIZE) as i32,
-                    TILE_SIZE as u32,
-                    TILE_SIZE as u32,
+                    (i % Self::WIDTH * Glyph::SIZE) as i32,
+                    (i / Self::WIDTH * Glyph::SIZE) as i32,
+                    Glyph::SIZE as u32,
+                    Glyph::SIZE as u32,
                 )),
             )?;
         }

@@ -1,6 +1,5 @@
 use crate::*;
 use sdl2::keyboard::Keycode;
-use sdl2::render::Texture;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Player {
@@ -8,25 +7,35 @@ pub struct Player {
     y: usize,
 }
 
+impl Default for Player {
+    fn default() -> Self {
+        Self {
+            x: 0,
+            y: 0,
+        }
+    }
+}
+
 pub enum State {
     Menu,
     Overworld,
 }
 
+impl Default for State {
+    fn default() -> Self {
+        Self::Menu
+    }
+}
+
+#[derive(Default)]
 pub struct World {
     state: State,
     player: Player,
-    background: Vec<Sprite>,
+    tilemap: Tilemap,
 }
 
 impl World {
-    pub fn new() -> Self {
-        Self {
-            state: State::Menu,
-            player: Player { x: 0, y: 0 },
-            background: vec![Sprite::new(0); SCREEN_WIDTH * SCREEN_HEIGHT],
-        }
-    }
+    pub fn new() -> Self { Self::default() }
 
     pub fn update(&mut self, key: Keycode) {
         match self.state {
@@ -37,16 +46,16 @@ impl World {
                 _ => {}
             },
             State::Overworld => match key {
-                Keycode::Up | Keycode::W | Keycode::K if self.player.y > 0 => {
+                Keycode::Up | Keycode::W | Keycode::K if self.player.y > 0 && !self.tilemap.wall_at(self.player.x, self.player.y - 1) => {
                     self.player.y -= 1;
                 }
-                Keycode::Down | Keycode::S | Keycode::J if self.player.y < SCREEN_HEIGHT - 1 => {
+                Keycode::Down | Keycode::S | Keycode::J if !self.tilemap.wall_at(self.player.x, self.player.y + 1) => {
                     self.player.y += 1;
                 }
-                Keycode::Left | Keycode::A | Keycode::H if self.player.x > 0 => {
+                Keycode::Left | Keycode::A | Keycode::H if self.player.x > 0 && !self.tilemap.wall_at(self.player.x - 1, self.player.y) => {
                     self.player.x -= 1;
                 }
-                Keycode::Right | Keycode::D | Keycode::L if self.player.x < SCREEN_WIDTH - 1 => {
+                Keycode::Right | Keycode::D | Keycode::L if !self.tilemap.wall_at(self.player.x + 1, self.player.y) => {
                     self.player.x += 1;
                 }
                 _ => {}
@@ -54,32 +63,32 @@ impl World {
         }
     }
 
-    pub fn draw_menu(&self, screen: &mut Screen) -> SdlResult {
+    pub fn draw_menu(&self, screen: &mut Screen) -> SdlResult<()> {
         screen.draw_text(
             "\x01 Rpg game \x01".to_owned(),
-            SCREEN_WIDTH / 2 - 6,
-            SCREEN_HEIGHT / 2 - 3,
+            Screen::WIDTH / 2 - 6,
+            Screen::HEIGHT / 2 - 3,
         );
         screen.draw_text(
             "Press enter to start".to_owned(),
-            SCREEN_WIDTH / 2 - 10,
-            SCREEN_HEIGHT / 2,
+            Screen::WIDTH / 2 - 10,
+            Screen::HEIGHT / 2,
         );
         Ok(())
     }
 
-    pub fn draw_playing(&self, screen: &mut Screen) -> SdlResult {
-        screen.screen = self.background.clone();
-        screen.set(self.player.x, self.player.y, 1);
+    pub fn draw_playing(&self, screen: &mut Screen<'_>) -> SdlResult<()> {
+        self.tilemap.draw(screen);
+        screen.set(self.player.x, self.player.y, Glyph::SMILEY);
         Ok(())
     }
 
-    pub fn draw(&self, screen: &mut Screen, tilemap: &Texture<'_>) -> SdlResult {
+    pub fn draw(&self, screen: &mut Screen<'_>) -> SdlResult<()> {
         screen.clear();
         match self.state {
             State::Menu => self.draw_menu(screen)?,
             State::Overworld => self.draw_playing(screen)?,
         }
-        screen.draw(tilemap)
+        Ok(())
     }
 }
