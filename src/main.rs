@@ -39,7 +39,9 @@ fn run() -> SdlResult<()> {
                     ..
                 } => break 'running,
                 Event::KeyDown {
-                    keycode: Some(key), ..
+                    keycode: Some(key),
+                    repeat: false,
+                    ..
                 } => {
                     world.update(key);
                 }

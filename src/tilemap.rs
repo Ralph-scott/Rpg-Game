@@ -1,4 +1,5 @@
 use crate::*;
+use sdl2::pixels::Color;
 
 #[derive(Debug, Copy, Clone)]
 pub enum TileKind {

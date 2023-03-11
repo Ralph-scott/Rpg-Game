@@ -8,6 +8,8 @@ use sdl2::video::Window;
 use sdl2::video::WindowContext;
 use std::path::Path;
 
+fn lerp(a: isize, b: isize, t: isize) -> isize { a + t * (b - a) }
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Glyph {
     x: usize,
@@ -17,8 +19,6 @@ pub struct Glyph {
 impl Glyph {
     pub const SIZE: usize = 20;
     pub const IMAGE_WIDTH: usize = 16;
-
-    pub const SMILEY: Self = Self::new(1);
 
     pub const fn new(ch: u8) -> Self {
         Self {
