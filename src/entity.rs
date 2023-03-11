@@ -32,13 +32,18 @@ pub struct World {
 
 impl Default for World {
     fn default() -> Self {
-        Self {
+        let mut s = Self {
             state: State::default(),
             player: Player::default(),
             tilemap: Tilemap {
                 tiles: vec![Tile::default(); Screen::WIDTH * Screen::HEIGHT],
             },
-        }
+        };
+        s.tilemap.tiles[Screen::WIDTH * 2 + 5] = Tile {
+            glyph: Glyph::new(b'A'),
+            kind: TileKind::Solid
+        };
+        s
     }
 }
 
