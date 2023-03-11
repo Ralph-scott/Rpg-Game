@@ -6,6 +6,7 @@ use sdl2::render::Texture;
 use sdl2::render::TextureCreator;
 use sdl2::video::Window;
 use sdl2::video::WindowContext;
+use sdl2::pixels::Color;
 use std::path::Path;
 
 fn lerp(a: isize, b: isize, t: isize) -> isize { a + t * (b - a) }
