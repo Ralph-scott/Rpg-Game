@@ -63,6 +63,7 @@ impl<'a> Screen<'a> {
     }
 
     pub fn draw(&mut self) -> SdlResult<()> {
+        self.canvas.set_draw_color(Color::RGB(0, 0, 0));
         self.canvas.clear();
         for (i, glyph) in self.screen.iter().enumerate() {
             self.canvas.copy(

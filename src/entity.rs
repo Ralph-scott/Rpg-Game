@@ -1,6 +1,5 @@
 use crate::*;
 use sdl2::keyboard::Keycode;
-use sdl2::pixels::Color;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Player {
