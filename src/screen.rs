@@ -1,13 +1,12 @@
 use crate::*;
+use sdl2::image::LoadTexture;
 use sdl2::rect::Rect;
 use sdl2::render::Canvas;
-use sdl2::render::TextureCreator;
 use sdl2::render::Texture;
+use sdl2::render::TextureCreator;
 use sdl2::video::Window;
 use sdl2::video::WindowContext;
-use sdl2::image::LoadTexture;
 use std::path::Path;
-
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Glyph {
@@ -39,15 +38,18 @@ impl<'a> Screen<'a> {
     pub const WIDTH: usize = 20;
     pub const HEIGHT: usize = 20;
 
-    pub fn new(texture_creator: &'a TextureCreator<WindowContext>, canvas: Canvas<Window>) -> SdlResult<Self> {
-        let font   = texture_creator.load_texture(Path::new("assets/sprites.png"))?;
+    pub fn new(
+        texture_creator: &'a TextureCreator<WindowContext>,
+        canvas: Canvas<Window>,
+    ) -> SdlResult<Self> {
+        let font = texture_creator.load_texture(Path::new("assets/sprites.png"))?;
         let screen = vec![Glyph::new(0); Self::WIDTH * Self::HEIGHT];
 
-        Ok(Self { font, canvas, screen })
-    }
-
-    pub fn clear(&mut self) {
-        self.screen.fill(Glyph::new(0));
+        Ok(Self {
+            font,
+            canvas,
+            screen,
+        })
     }
 
     pub fn set(&mut self, x: usize, y: usize, glyph: Glyph) {

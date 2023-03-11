@@ -1,6 +1,6 @@
+use rpg_game::*;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use rpg_game::*;
 
 fn run() -> SdlResult<()> {
     let sdl = sdl2::init()?;
@@ -26,6 +26,7 @@ fn run() -> SdlResult<()> {
 
     let mut now = std::time::Instant::now();
 
+    screen.draw()?;
     'running: loop {
         world.draw(&mut screen)?;
         screen.draw()?;
@@ -38,9 +39,7 @@ fn run() -> SdlResult<()> {
                     ..
                 } => break 'running,
                 Event::KeyDown {
-                    keycode: Some(key),
-                    //repeat: false,
-                    ..
+                    keycode: Some(key), ..
                 } => {
                     world.update(key);
                 }
@@ -48,12 +47,9 @@ fn run() -> SdlResult<()> {
             }
         }
 
-        print!("\x1b[2J\x1b[1;1H");
-        println!(
-            "fps = {fps:?}",
-            fps = std::time::Duration::from_secs(1).as_nanos() as f32
-                / now.elapsed().as_nanos() as f32
-        );
+        let elapsed = now.elapsed();
+        eclear();
+        println!("elapsed = {elapsed:?}");
         now = std::time::Instant::now();
     }
     Ok(())

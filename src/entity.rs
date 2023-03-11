@@ -9,10 +9,7 @@ pub struct Player {
 
 impl Default for Player {
     fn default() -> Self {
-        Self {
-            x: 0,
-            y: 0,
-        }
+        Self { x: 0, y: 0 }
     }
 }
 
@@ -27,17 +24,30 @@ impl Default for State {
     }
 }
 
-#[derive(Default)]
 pub struct World {
     state: State,
     player: Player,
     tilemap: Tilemap,
 }
 
-impl World {
-    pub fn new() -> Self { Self::default() }
+impl Default for World {
+    fn default() -> Self {
+        Self {
+            state: State::default(),
+            player: Player::default(),
+            tilemap: Tilemap {
+                tiles: vec![Tile::default(); Screen::WIDTH * Screen::HEIGHT],
+            },
+        }
+    }
+}
 
-    pub fn update(&mut self, key: Keycode) {
+impl World {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub  fn update(&mut self, key: Keycode) {
         match self.state {
             State::Menu => match key {
                 Keycode::Return => {
@@ -45,25 +55,28 @@ impl World {
                 }
                 _ => {}
             },
-            State::Overworld => match key {
-                Keycode::Up | Keycode::W | Keycode::K if self.player.y > 0 && !self.tilemap.wall_at(self.player.x, self.player.y - 1) => {
-                    self.player.y -= 1;
+            State::Overworld => {
+                let (x, y) = match key {
+                    Keycode::Up | Keycode::W | Keycode::K if self.player.y > 0 => {
+                        (self.player.x, self.player.y - 1)
+                    }
+                    Keycode::Down | Keycode::S | Keycode::J => (self.player.x, self.player.y + 1),
+                    Keycode::Left | Keycode::A | Keycode::H if self.player.x > 0 => {
+                        (self.player.x - 1, self.player.y)
+                    }
+                    Keycode::Right | Keycode::D | Keycode::L => (self.player.x + 1, self.player.y),
+                    _ => (self.player.x, self.player.y),
+                };
+
+                if !self.tilemap.wall_at(x, y) {
+                    self.player.x = x;
+                    self.player.y = y;
                 }
-                Keycode::Down | Keycode::S | Keycode::J if !self.tilemap.wall_at(self.player.x, self.player.y + 1) => {
-                    self.player.y += 1;
-                }
-                Keycode::Left | Keycode::A | Keycode::H if self.player.x > 0 && !self.tilemap.wall_at(self.player.x - 1, self.player.y) => {
-                    self.player.x -= 1;
-                }
-                Keycode::Right | Keycode::D | Keycode::L if !self.tilemap.wall_at(self.player.x + 1, self.player.y) => {
-                    self.player.x += 1;
-                }
-                _ => {}
-            },
+            }
         }
     }
 
-    pub fn draw_menu(&self, screen: &mut Screen) -> SdlResult<()> {
+    pub fn draw_menu(&self, screen: &mut Screen<'_>) -> SdlResult<()> {
         screen.draw_text(
             "\x01 Rpg game \x01".to_owned(),
             Screen::WIDTH / 2 - 6,
@@ -84,7 +97,6 @@ impl World {
     }
 
     pub fn draw(&self, screen: &mut Screen<'_>) -> SdlResult<()> {
-        screen.clear();
         match self.state {
             State::Menu => self.draw_menu(screen)?,
             State::Overworld => self.draw_playing(screen)?,
