@@ -24,8 +24,6 @@ fn run() -> SdlResult<()> {
 
     let mut world = World::new();
 
-    let mut now = std::time::Instant::now();
-
     screen.draw()?;
     'running: loop {
         world.draw(&mut screen)?;
@@ -48,11 +46,6 @@ fn run() -> SdlResult<()> {
                 _ => {}
             }
         }
-
-        let elapsed = now.elapsed();
-        eclear();
-        println!("elapsed = {elapsed:?}");
-        now = std::time::Instant::now();
     }
     Ok(())
 }
