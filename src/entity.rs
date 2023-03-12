@@ -16,6 +16,7 @@ impl Default for Player {
 pub enum State {
     Menu,
     Overworld,
+    SayingHello
 }
 
 impl Default for State {
@@ -35,9 +36,7 @@ impl Default for World {
         Self {
             state: State::default(),
             player: Player::default(),
-            tilemap: Tilemap {
-                tiles: vec![Tile::default(); Screen::WIDTH * Screen::HEIGHT],
-            },
+            tilemap: load("start.txt"),
         }
     }
 }
@@ -56,6 +55,9 @@ impl World {
                 _ => {}
             },
             State::Overworld => {
+                if let Keycode::T = key {
+                    self.state = State::SayingHello;
+                }
                 let (x, y) = match key {
                     Keycode::Up | Keycode::W | Keycode::K if self.player.y > 0 => {
                         (self.player.x, self.player.y - 1)
@@ -71,6 +73,11 @@ impl World {
                 if !self.tilemap.wall_at(x, y) {
                     self.player.x = x;
                     self.player.y = y;
+                }
+            },
+            State::SayingHello => {
+                if let Keycode::Return = key {
+                    self.state = State::Overworld;
                 }
             }
         }
@@ -93,13 +100,16 @@ impl World {
     pub fn draw_playing(&self, screen: &mut Screen<'_>) -> SdlResult<()> {
         self.tilemap.draw(screen);
         screen.set(self.player.x, self.player.y, Glyph::new(1));
+        if let State::SayingHello = self.state {
+            screen.draw_dialogue("Hello, i am bob     the adventurer.".to_owned());
+        }
         Ok(())
     }
 
     pub fn draw(&self, screen: &mut Screen<'_>) -> SdlResult<()> {
         match self.state {
             State::Menu => self.draw_menu(screen)?,
-            State::Overworld => self.draw_playing(screen)?,
+            State::Overworld | State::SayingHello => self.draw_playing(screen)?,
         }
         Ok(())
     }

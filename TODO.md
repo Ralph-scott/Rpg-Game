@@ -1,12 +1,15 @@
-## DONE
+## 5ONE
 - Implement basic game
 - Fix cpu usage
 - Start menu
 - Collision tiles
+- Loading from custom file format
 
 ## WORKING ON
+- Dialogue system
 
 ## TODO
-- Loading from custom file format
 - Different rooms
+- Cutscenes
+- More efficient tilemap loading
 - Music
