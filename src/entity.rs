@@ -16,7 +16,7 @@ impl Default for Player {
 pub enum State {
     Menu,
     Overworld,
-    SayingHello
+    SayingHello(usize)
 }
 
 impl Default for State {
@@ -47,6 +47,7 @@ impl World {
     }
 
     pub fn update(&mut self, key: Keycode) {
+        let len = "Hello, i am bob the adventurer.".len();
         match self.state {
             State::Menu => match key {
                 Keycode::Return => {
@@ -56,7 +57,7 @@ impl World {
             },
             State::Overworld => {
                 if let Keycode::T = key {
-                    self.state = State::SayingHello;
+                    self.state = State::SayingHello(0);
                 }
                 let (x, y) = match key {
                     Keycode::Up | Keycode::W | Keycode::K if self.player.y > 0 => {
@@ -75,9 +76,11 @@ impl World {
                     self.player.y = y;
                 }
             },
-            State::SayingHello => {
+            State::SayingHello(l) => {
                 if let Keycode::Return = key {
-                    self.state = State::Overworld;
+                    if l == len {
+                        self.state = State::Overworld;
+                    }
                 }
             }
         }
@@ -97,19 +100,22 @@ impl World {
         Ok(())
     }
 
-    pub fn draw_playing(&self, screen: &mut Screen<'_>) -> SdlResult<()> {
+    pub fn draw_playing(&mut self, screen: &mut Screen<'_>) -> SdlResult<()> {
         self.tilemap.draw(screen);
         screen.set(self.player.x, self.player.y, Glyph::new(1));
-        if let State::SayingHello = self.state {
-            screen.draw_dialogue("Hello, i am bob     the adventurer.".to_owned());
+        if let State::SayingHello(n) = self.state {
+            screen.draw_dialogue("Hello, i am bob the adventurer."[0..n].to_owned());
+            if n < "Hello, i am bob the adventurer.".len() {
+                self.state = State::SayingHello(n + 1);
+            }
         }
         Ok(())
     }
 
-    pub fn draw(&self, screen: &mut Screen<'_>) -> SdlResult<()> {
+    pub fn draw(&mut self, screen: &mut Screen<'_>) -> SdlResult<()> {
         match self.state {
             State::Menu => self.draw_menu(screen)?,
-            State::Overworld | State::SayingHello => self.draw_playing(screen)?,
+            State::Overworld | State::SayingHello(_) => self.draw_playing(screen)?,
         }
         Ok(())
     }

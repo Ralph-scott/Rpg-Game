@@ -85,7 +85,16 @@ impl<'a> Screen<'a> {
                 self.set(x, y, Glyph::new(0));
             }
         }
-        self.draw_text(text, 2, Screen::HEIGHT - 6);
+        let mut x: usize = 2;
+        let mut y: usize = 0;
+        for ch in text.bytes() {
+            self.screen[(Self::HEIGHT - 6 + y) * Self::WIDTH + x] = Glyph::new(ch);
+            x += 1;
+            if x == Self::WIDTH - 2 {
+                x = 2;
+                y += 1;
+            }
+        }
     }
 
     pub fn draw(&mut self) -> SdlResult<()> {

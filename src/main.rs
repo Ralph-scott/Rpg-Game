@@ -24,7 +24,6 @@ fn run() -> SdlResult<()> {
 
     let mut world = World::new();
 
-    screen.draw()?;
     'running: loop {
         world.draw(&mut screen)?;
         screen.draw()?;
@@ -36,22 +35,14 @@ fn run() -> SdlResult<()> {
                     keycode: Some(Keycode::Escape),
                     ..
                 } => break 'running,
-                Event::KeyDown {
-                    keycode: Some(key),
-                    // repeat: false,
-                    ..
-                } => {
+                Event::KeyDown { keycode: Some(key), repeat: false, .. } => {
                     world.update(key);
-                }
+                },
                 _ => {}
             }
         }
     }
     Ok(())
-}
-
-fn eclear() {
-    eprint!("\x1b[2J\x1b[1;1H");
 }
 
 fn main() {
@@ -60,16 +51,9 @@ fn main() {
         std::process::exit(1);
     });
 
-    eclear();
     eprintln!("Waiting for no reason...");
 
-    std::thread::sleep(std::time::Duration::from_millis(2000));
-    for i in 0..=100 {
-        eclear();
-        eprintln!("Printing percentages: {i}%");
-
-        std::thread::sleep(std::time::Duration::from_millis(20));
-    }
+    std::thread::sleep(std::time::Duration::from_millis(1000));
 
     eprintln!("Game closed succesfully.");
 }
