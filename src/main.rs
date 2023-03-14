@@ -14,7 +14,7 @@ fn run() -> SdlResult<()> {
         .position_centered()
         .build()?;
 
-    let canvas = window.into_canvas().present_vsync().build()?;
+    let canvas = window.into_canvas().build()?;
 
     let texture_creator = canvas.texture_creator();
 
@@ -24,9 +24,19 @@ fn run() -> SdlResult<()> {
 
     let mut world = World::new();
 
+    let mut now = std::time::Instant::now();
+    let frame_time = std::time::Duration::from_secs(1) / 60;
+
     'running: loop {
+        world.update();
         world.draw(&mut screen)?;
         screen.draw()?;
+
+        let elapsed = now.elapsed();
+        if elapsed < frame_time {
+            std::thread::sleep(frame_time - elapsed);
+        }
+        now = std::time::Instant::now();
 
         for evt in event_pump.poll_iter() {
             match evt {
@@ -35,8 +45,8 @@ fn run() -> SdlResult<()> {
                     keycode: Some(Keycode::Escape),
                     ..
                 } => break 'running,
-                Event::KeyDown { keycode: Some(key), repeat: false, .. } => {
-                    world.update(key);
+                Event::KeyDown { keycode: Some(key), .. } => {
+                    world.update_key(key);
                 },
                 _ => {}
             }
@@ -45,15 +55,14 @@ fn run() -> SdlResult<()> {
     Ok(())
 }
 
-fn main() {
-    run().unwrap_or_else(|e| {
-        eprintln!("ERROR: {e:?}");
-        std::process::exit(1);
-    });
+fn main() -> SdlResult<()> {
+    run().map_err(|e| format!("ERROR: {:?}", e))?;
 
     eprintln!("Waiting for no reason...");
 
-    std::thread::sleep(std::time::Duration::from_millis(1000));
+    std::thread::sleep(std::time::Duration::from_secs(1));
 
     eprintln!("Game closed succesfully.");
+
+    Ok(())
 }

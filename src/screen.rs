@@ -1,13 +1,13 @@
 use crate::*;
 use sdl2::image::LoadTexture;
+use sdl2::pixels::Color;
 use sdl2::rect::Rect;
+use sdl2::render::BlendMode;
 use sdl2::render::Canvas;
 use sdl2::render::Texture;
 use sdl2::render::TextureCreator;
 use sdl2::video::Window;
 use sdl2::video::WindowContext;
-use sdl2::pixels::Color;
-use sdl2::render::BlendMode;
 use std::path::Path;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]

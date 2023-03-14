@@ -2,21 +2,32 @@ use crate::*;
 use std::fs;
 
 pub fn load(file: &'static str) -> Tilemap {
-    let tiles = fs::read_to_string(file).unwrap()
+    let tiles = fs::read_to_string(file)
+        .unwrap()
         .split_inclusive(",")
         .map(|x| {
             let mut chars = x.trim().trim_end_matches(",").chars();
             match chars.next().unwrap() {
                 'B' => Tile {
-                    glyph: Glyph::new(chars.as_str().parse().unwrap_or_else(|_| chars.next().unwrap() as u8)),
+                    glyph: Glyph::new(
+                        chars
+                            .as_str()
+                            .parse()
+                            .unwrap_or_else(|_| chars.nth(1).unwrap() as u8),
+                    ),
                     kind: TileKind::Background,
                 },
                 'S' => Tile {
-                    glyph: Glyph::new(chars.as_str().parse().unwrap_or_else(|_| chars.next().unwrap() as u8)),
+                    glyph: Glyph::new(
+                        chars
+                            .as_str()
+                            .parse()
+                            .unwrap_or_else(|_| chars.nth(1).unwrap() as u8),
+                    ),
                     kind: TileKind::Solid,
                 },
                 'D' => todo!("Add doors"),
-                _ => todo!()
+                _ => todo!(),
             }
         })
         .collect();
