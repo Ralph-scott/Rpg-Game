@@ -17,7 +17,7 @@ impl Default for Player {
 pub enum State {
     Menu,
     Overworld,
-    Saying(String, usize),
+    Saying(&'static [u8], usize),
 }
 
 impl Default for State {
@@ -27,7 +27,7 @@ impl Default for State {
 }
 
 pub struct World {
-    font_timer: Timer,
+    text_timer: Timer,
     state: State,
     player: Player,
     tilemap: Tilemap,
@@ -36,7 +36,7 @@ pub struct World {
 impl Default for World {
     fn default() -> Self {
         Self {
-            font_timer: Timer::new(Duration::from_millis(50)),
+            text_timer: Timer::new(Duration::from_millis(30)),
             state: State::default(),
             player: Player::default(),
             tilemap: load("start.txt"),
@@ -59,7 +59,7 @@ impl World {
             },
             State::Overworld => {
                 if let Keycode::T = key {
-                    self.state = State::Saying("Hello, Human!".to_owned(), 0);
+                    self.state = State::Saying(b"Hello, \x01! I am a piece of test text!", 0);
                 }
 
                 let (x, y) = match key {
@@ -92,14 +92,11 @@ impl World {
     pub fn update(&mut self) {
         match self.state {
             State::Saying(ref string, ref mut n) => {
-                if *n < string.len() && self.font_timer.finished() {
-                    loop {
-                        *n += 1;
-                        if string.as_bytes().get(*n) != Some(&b' ') { break }
-                    }
-                    self.font_timer.reset();
+                if *n < string.len() && self.text_timer.finished() {
+                    *n += 1;
+                    self.text_timer.reset();
                 }
-            },
+            }
             _ => {}
         }
     }
@@ -122,7 +119,7 @@ impl World {
         self.tilemap.draw(screen);
         screen.set(self.player.x, self.player.y, Glyph::new(1));
         if let State::Saying(ref string, n) = self.state {
-            screen.draw_dialogue(string[0..n].to_owned());
+            screen.draw_dialogue(string, n);
         }
         Ok(())
     }

@@ -36,6 +36,7 @@ fn run() -> SdlResult<()> {
         if elapsed < frame_time {
             std::thread::sleep(frame_time - elapsed);
         }
+        println!("{:?}", now.elapsed());
         now = std::time::Instant::now();
 
         for evt in event_pump.poll_iter() {
@@ -45,9 +46,11 @@ fn run() -> SdlResult<()> {
                     keycode: Some(Keycode::Escape),
                     ..
                 } => break 'running,
-                Event::KeyDown { keycode: Some(key), .. } => {
+                Event::KeyDown {
+                    keycode: Some(key), ..
+                } => {
                     world.update_key(key);
-                },
+                }
                 _ => {}
             }
         }

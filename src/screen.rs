@@ -60,38 +60,47 @@ impl<'a> Screen<'a> {
 
     pub fn draw_text(&mut self, text: String, x: usize, y: usize) {
         for (i, ch) in text.bytes().enumerate() {
-            if ch != b' ' {
-                self.screen[y * Self::WIDTH + x + i] = Glyph::new(ch);
-            }
+            self.screen[y * Self::WIDTH + x + i] = Glyph::new(ch);
         }
     }
 
-    pub fn draw_dialogue(&mut self, text: String) {
+    pub fn draw_dialogue(&mut self, text: &[u8], end: usize) {
         // TODO: Clean up this horrible mess
+
         for i in 1..5 {
-            self.set(1, Screen::HEIGHT - 2 - i, Glyph::new(179));
-            self.set(Screen::WIDTH - 2, Screen::HEIGHT - 2 - i, Glyph::new(179));
+            self.screen[(Self::HEIGHT - i - 1) * Self::WIDTH] = Glyph::new(179);
+            self.screen[(Self::HEIGHT - i) * Self::WIDTH - 1] = Glyph::new(179);
         }
-        for i in 1..Screen::WIDTH - 3 {
-            self.set(Screen::WIDTH - 2 - i, Screen::HEIGHT - 2, Glyph::new(196));
-            self.set(Screen::WIDTH - 2 - i, Screen::HEIGHT - 7, Glyph::new(196));
+
+        for i in 1..Self::WIDTH - 1 {
+            self.screen[(Self::HEIGHT - 1) * Self::WIDTH + i] = Glyph::new(196);
+            self.screen[(Self::HEIGHT - 6) * Self::WIDTH + i] = Glyph::new(196);
         }
-        self.set(Screen::WIDTH - 2, Screen::HEIGHT - 2, Glyph::new(217));
-        self.set(1, Screen::HEIGHT - 2, Glyph::new(192));
-        self.set(Screen::WIDTH - 2, Screen::HEIGHT - 7, Glyph::new(191));
-        self.set(1, Screen::HEIGHT - 7, Glyph::new(218));
-        for x in 2..Screen::WIDTH - 2 {
-            for y in Screen::HEIGHT - 6..Screen::HEIGHT - 2 {
-                self.set(x, y, Glyph::new(0));
+
+        self.screen[(Self::HEIGHT - 0) * Self::WIDTH - 1] = Glyph::new(217);
+        self.screen[(Self::HEIGHT - 1) * Self::WIDTH - 0] = Glyph::new(192);
+        self.screen[(Self::HEIGHT - 5) * Self::WIDTH - 1] = Glyph::new(191);
+        self.screen[(Self::HEIGHT - 6) * Self::WIDTH - 0] = Glyph::new(218);
+
+        for x in 1..Self::WIDTH - 1 {
+            for y in Self::HEIGHT - 5..Self::HEIGHT - 1 {
+                self.screen[y * Self::WIDTH + x] = Glyph::new(0);
             }
         }
-        let mut x: usize = 2;
+
+        let mut x: usize = 1;
         let mut y: usize = 0;
-        for ch in text.bytes() {
-            self.screen[(Self::HEIGHT - 6 + y) * Self::WIDTH + x] = Glyph::new(ch);
+
+        let mut i = 0;
+        while i < end {
+            if !text[i].is_ascii_whitespace() {
+                self.screen[(Self::HEIGHT - 5 + y) * Self::WIDTH + x] = Glyph::new(text[i]);
+            }
+
             x += 1;
-            if x == Self::WIDTH - 2 {
-                x = 2;
+            i += 1;
+            if x + text[i..].iter().position(|x| x.is_ascii_whitespace()).unwrap_or(text.len() - i) >= Self::WIDTH && x != 1 {
+                x = 1;
                 y += 1;
             }
         }
